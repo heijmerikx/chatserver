@@ -13,6 +13,6 @@ NodeJitsu
 
 Add env variable
 
-  $ jitsu env set NODE_ENV production
+  % jitsu env set NODE_ENV production
 
   This app is available at http://tdl-chat.nodejitsu.com/
