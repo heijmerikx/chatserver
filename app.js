@@ -16,10 +16,10 @@ if (process.env.REDISTOGO_URL) {
 }
 
 // heroku specific configuration
-// io.configure(function () { 
-//   io.set("transports", ["xhr-polling"]); 
-//   io.set("polling duration", 10); 
-// });
+io.configure(function () { 
+  io.set("transports", ["xhr-polling"]); 
+  io.set("polling duration", 10); 
+});
 
 // display the index.html page for rendering the chatroom.
 app.get("/", function(req, res){
