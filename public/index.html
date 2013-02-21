@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Quotes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="http://use.edgefonts.net/andika.js"></script>
+    <script src="http://use.edgefonts.net/arvo.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript">
+      var server = io.connect('http://localhost:8080');
+      
+      $(function() {
+
+        // socket.io stuff #######################
+
+        // on connect
+        server.on('connect', function(data){
+          var nickname = localStorage.getItem("nickname");
+          if (nickname == null) {
+            nickname = prompt("What is your nickname");
+            localStorage.setItem("nickname", nickname);
+          }
+          server.emit('join', nickname);
+        });
+
+        // the welcome message
+        server.on('welcome', function(data) {
+          $("#messages").html(data.hello);
+        });
+
+        // submitting messages
+        $("#chatform").submit(function() {
+          var message = $("#chatform textarea").val();
+          if (message.length > 0) {
+            server.emit('messages', message);
+            $("#chatform textarea").val("");
+          }
+        });
+
+        // listen for messages
+        server.on("messages", function(data) {
+          $('#messages').append(data + '<br/>');
+
+          // and scroll to the bottom of the chat
+          var height = $('#messages')[0].scrollHeight;
+          $('#messages').animate({scrollTop: height}, 300);
+        });
+
+        // update connected clientlist
+        server.on('clients', function(clients) {
+          $("#people .peeps").html("");
+          $.each(clients, function(index, value) {
+            $("#people .peeps").prepend("<li>" + value + "</li>");
+          });
+
+          //$("#people").html(clients.toString());
+        });
+
+        // Other page stuff #######################
+        $('#msg').keypress(function (e) {
+          
+          if (e.which == 13) {
+            e.preventDefault();
+            $('#chatform').submit();
+          }
+        });
+
+        $('#msg').focus();
+
+      });
+
+    </script>
+    <link rel="stylesheet" type="text/css" media="screen" href="/styles/dressing.css" />
+  </head>
+  <body>
+    <div id="container">
+      <section id="people">
+        <ul class="peeps"></ul>
+      </section>
+      <section id="log">
+        <div id="messages"></div>
+      </section>
+      <section id="input">
+        <form id="chatform" action="#">
+          <textarea id="msg"></textarea>
+          
+        </form>
+      </section>
+    </div>
+    <footer>
+      HTML5 localstorage, Redis, Node.js and socket.io. On Heroku - By Rutger Heijmerikx <a href="http://twitter.com/heijmerikx" target="_blank">@heijmerikx</a><br/>
+      Only works on proper modern browsers...
+    </footer>
+  </body>
+</html>
