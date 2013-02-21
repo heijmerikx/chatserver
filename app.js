@@ -47,10 +47,10 @@ io.sockets.on('connection',function(client) {
   client.on('join', function(name){
     client.set('nickname', name);
     // add the connecting client to the list of active clients
-    redisClient.lpush('clients', name);
+    redisClient.sadd('clients', name);
     // and notify all connnected clients of the newly joined client
-    var clients = redisClient.lrange("clients", 0 , -1, function(err, clients){
-      io.sockets.emit('clients', clients);
+    var clients = redisClient.smembers("clients", function(err, clients){
+      io.sockets.emit('clients', clients);      
     });
     
   });
@@ -59,11 +59,11 @@ io.sockets.on('connection',function(client) {
   client.on('disconnect', function(){
     // remove the client from the clients list
     client.get('nickname',function(err, name){
-      redisClient.lrem('clients', 0, name);
+      redisClient.srem('clients', name);
     });
     
     // and update all clients of this change
-    var clients = redisClient.lrange("clients", 0 , -1, function(err, clients){
+    var clients = redisClient.smembers("clients", function(err, clients){
       io.sockets.emit('clients', clients);
     });
   });

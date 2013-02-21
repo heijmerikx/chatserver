@@ -20,13 +20,14 @@
           if (nickname == null) {
             nickname = prompt("What is your nickname");
             localStorage.setItem("nickname", nickname);
+            server.emit('join', nickname);
           }
           server.emit('join', nickname);
         });
 
         // the welcome message
         server.on('welcome', function(data) {
-          $("#messages").html(data.hello);
+          $("#messages").html(data.hello + "<br/>");
         });
 
         // submitting messages
