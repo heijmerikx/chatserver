@@ -8,7 +8,6 @@ var io = require('socket.io').listen(server);
 var redis = require('redis');
 
 if (process.env.REDISTOGO_URL) {
-  // TODO: redistogo connection
   var rtg   = require("url").parse(process.env.REDISTOGO_URL);
   var redis = require("redis").createClient(rtg.port, rtg.hostname);
   redis.auth(rtg.auth.split(":")[1]);
@@ -16,10 +15,13 @@ if (process.env.REDISTOGO_URL) {
   var redisClient = redis.createClient();
 }
 
-
+// heroku specific configuration
+io.configure(function () { 
+  io.set("transports", ["xhr-polling"]); 
+  io.set("polling duration", 10); 
+});
 
 // display the index.html page for rendering the chatroom.
-
 app.get("/", function(req, res){
   res.sendfile(__dirname + '/public/index.html');
 });

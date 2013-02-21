@@ -8,7 +8,7 @@
     <script src="http://use.edgefonts.net/arvo.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script type="text/javascript">
-      var server = io.connect('http://localhost:8080');
+      var server = io.connect(window.location.hostname);
       
       $(function() {
 
