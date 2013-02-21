@@ -1,25 +1,21 @@
 var express = require('express');
 var app = express();
 var http = require('http');
-var port = process.env.PORT || 8080;
-var server = http.createServer(app).listen(port);
+var server = http.createServer(app).listen(8080);
 var io = require('socket.io').listen(server);
 
 var redis = require('redis');
 
-if (process.env.REDISTOGO_URL) {
-  var rtg   = require("url").parse(process.env.REDISTOGO_URL);
-  var redisClient = require("redis").createClient(rtg.port, rtg.hostname);
-  redisClient.auth(rtg.auth.split(":")[1]);
+if (process.env.NODE_ENV == "production") {  
+  var redisClient = require("redis").createClient(6379, "nodejitsudb2911129160.redis.irstack.com");
+  redisClient.auth("nodejitsudb2911129160.redis.irstack.com:f327cfe980c971946e80b8e975fbebb4", function(err){
+    if (err) {
+      throw err;
+    }
+  });
 } else {
   var redisClient = redis.createClient();
 }
-
-// heroku specific configuration
-io.configure(function () { 
-  io.set("transports", ["xhr-polling"]); 
-  io.set("polling duration", 10); 
-});
 
 // display the index.html page for rendering the chatroom.
 app.get("/", function(req, res){
@@ -29,6 +25,17 @@ app.use("/styles", express.static(__dirname + '/public/styles'));
 
 // handling the socket.io traffic
 io.sockets.on('connection',function(client) {
+
+  client.get('nickname',function(err, name){
+    console.log(name);
+    if (name !== null) {
+      redisClient.sadd('clients', name);
+    }
+  });
+
+  var clients = redisClient.smembers("clients", function(err, clients){
+    io.sockets.emit('clients', clients);      
+  });
 
   // Give the connecting client the last 20 messages 
   // that were send to the chat server and where persisted by redis
@@ -60,6 +67,7 @@ io.sockets.on('connection',function(client) {
     // remove the client from the clients list
     client.get('nickname',function(err, name){
       redisClient.srem('clients', name);
+      console.log(name + " disconnected!");
     });
     
     // and update all clients of this change
