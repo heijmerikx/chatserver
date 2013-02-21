@@ -1,7 +1,8 @@
 var express = require('express');
 var app = express();
 var http = require('http');
-var server = http.createServer(app).listen(8080);
+var port = process.env.PORT || 8080;
+var server = http.createServer(app).listen(port);
 var io = require('socket.io').listen(server);
 
 var redis = require('redis');
