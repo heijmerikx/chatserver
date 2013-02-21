@@ -5,7 +5,17 @@ var server = http.createServer(app).listen(8080);
 var io = require('socket.io').listen(server);
 
 var redis = require('redis');
-var redisClient = redis.createClient();
+
+if (process.env.REDISTOGO_URL) {
+  // TODO: redistogo connection
+  var rtg   = require("url").parse(process.env.REDISTOGO_URL);
+  var redis = require("redis").createClient(rtg.port, rtg.hostname);
+  redis.auth(rtg.auth.split(":")[1]);
+} else {
+  var redisClient = redis.createClient();
+}
+
+
 
 // display the index.html page for rendering the chatroom.
 
