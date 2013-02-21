@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Quotes</title>
+    <title>Node.js chat server application</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
     <script src="http://use.edgefonts.net/andika.js"></script>
@@ -11,6 +11,9 @@
       var server = io.connect(window.location.hostname);
       
       $(function() {
+
+        var welcome = new Audio("styles/mario_01.wav"); // buffers automatically when created
+        var notify = new Audio("styles/mario_02.wav");
 
         // socket.io stuff #######################
 
@@ -23,6 +26,7 @@
             server.emit('join', nickname);
           }
           server.emit('join', nickname);
+          welcome.play();
         });
 
         // the welcome message
@@ -46,6 +50,9 @@
           // and scroll to the bottom of the chat
           var height = $('#messages')[0].scrollHeight;
           $('#messages').animate({scrollTop: height}, 300);
+
+          
+          notify.play();
         });
 
         // update connected clientlist
